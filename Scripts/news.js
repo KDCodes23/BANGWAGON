@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 // Fetch Ontario Political News from NewsData.io
 function fetchNews() {
-    const apiKey = "pub_72580437a02dc7e453204306700799384ca8a"; // Replace with your actual API key
+    const apiKey = "pub_72674e189bc593de82af34ffffa362e2a1bca"; // Replace with your actual API key
     const apiUrl = `https://newsdata.io/api/1/news?apikey=${apiKey}&country=ca&category=politics&q=Ontario`;
 
     fetch(apiUrl)
