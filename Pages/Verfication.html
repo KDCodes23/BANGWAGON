@@ -1,4 +1,3 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>License Verification</title>
     <link rel="stylesheet" href="/Styles/Veri.css">
+    <style>
+        /* Add these styles to your Veri.css */
+        .data-field { margin-bottom: 8px; }
+        .data-label { font-weight: bold; color: #666; }
+        .data-value { color: #333; }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -13,8 +18,11 @@
             <video id="video" width="100%" height="100%" autoplay></video>
         </div>
 
-        <input type="text" class="license-input" placeholder="Enter Driver's License Number" id="licenseInput">
-        
+        <!-- Single license input -->
+        <input type="text" class="license-input" 
+               placeholder="Driver's License Number"
+               id="licenseInput" readonly>
+
         <button class="capture-button" id="captureLicense">Capture License</button>
         <div class="preview-container">
             <img src="#" class="image-preview" id="licensePreview" alt="License preview">
@@ -25,52 +33,148 @@
             <img src="#" class="image-preview" id="facePreview" alt="Face preview">
         </div>
 
-        <div class="result-text" id="resultText">Extracted Data Will Appear Here</div>
+        <!-- Single result text container -->
+        <div class="result-text" id="resultText">
+            <div class="data-field">
+                <span class="data-label">Name:</span>
+                <span class="data-value" id="nameValue">Not found</span>
+            </div>
+            <div class="data-field">
+                <span class="data-label">Date of Birth:</span>
+                <span class="data-value" id="dobValue">Not found</span>
+            </div>
+            <div class="data-field">
+                <span class="data-label">Address:</span>
+                <span class="data-value" id="addressValue">Not found</span>
+            </div>
+        </div>
     </div>
 
     <script>
-        // Webcam access
+        // Camera and UI Elements
         const video = document.getElementById('video');
-        let licenseImageData = null;
-
-        // Start webcam
-        navigator.mediaDevices.getUserMedia({ video: true })
-            .then(stream => video.srcObject = stream)
-            .catch(err => console.error('Error accessing camera:', err));
-
-        // Capture License
-        document.getElementById('captureLicense').addEventListener('click', async () => {
-            const canvas = document.createElement('canvas');
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            canvas.getContext('2d').drawImage(video, 0, 0);
-            
-            const preview = document.getElementById('licensePreview');
-            licenseImageData = canvas.toDataURL('image/jpeg');
-            preview.src = licenseImageData;
-            preview.style.display = 'block';
-
-            // Send to Python backend for processing
+        const captureLicenseBtn = document.getElementById('captureLicense');
+        const licensePreview = document.getElementById('licensePreview');
+        const licenseInput = document.getElementById('licenseInput');
+        
+        // Camera Initialization
+        async function initCamera() {
             try {
-                const response = await fetch('http://localhost:5000/process-license', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ image: licenseImageData })
+                const constraints = {
+                    video: {
+                        facingMode: 'environment',
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                    }
+                };
+                
+                const stream = await navigator.mediaDevices.getUserMedia(constraints);
+                video.srcObject = stream;
+                video.play();
+                
+                // Handle stream stopped
+                video.srcObject.getVideoTracks()[0].addEventListener('ended', () => {
+                    console.log('Camera stream ended');
+                    alert('Camera access was revoked. Please reload the page.');
                 });
                 
+            } catch (error) {
+                console.error('Camera Error:', error);
+                handleCameraError(error);
+            }
+        }
+    
+        // Error Handling
+        function handleCameraError(error) {
+            let message = 'Cannot access camera: ';
+            switch (error.name) {
+                case 'NotAllowedError':
+                    message += 'Permission denied';
+                    break;
+                case 'NotFoundError':
+                    message += 'No camera found';
+                    break;
+                case 'NotReadableError':
+                    message += 'Camera is already in use';
+                    break;
+                default:
+                    message += 'Unknown error';
+            }
+            alert(message);
+        }
+    
+        // Capture License Handler
+        async function captureLicense() {
+            try {
+                // Capture image from video stream
+                const canvas = document.createElement('canvas');
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                
+                // Show preview
+                licensePreview.src = canvas.toDataURL('image/jpeg');
+                licensePreview.style.display = 'block';
+                
+                // Process with server
+                const response = await fetch('http://localhost:5000/process-license', {
+                    method: 'POST',
+                    mode: 'cors',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        image: canvas.toDataURL('image/jpeg', 0.8) // 80% quality
+                    })
+                });
+    
+                // Handle HTTP errors
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Server error');
+                }
+    
+                // Update UI with results
                 const data = await response.json();
                 if (data.success) {
-                    document.getElementById('resultText').innerHTML = `
-                        License: ${data.license_number}<br>
-                        Name: ${data.full_name}<br>
-                        DOB: ${data.dob}<br>
-                        Address: ${data.address}
-                    `;
+                    licenseInput.value = data.license_number || '';
+                    document.getElementById('nameValue').textContent = data.full_name || 'Not found';
+                    document.getElementById('dobValue').textContent = data.dob || 'Not found';
+                    document.getElementById('addressValue').textContent = data.address || 'Not found';
                 } else {
-                    document.getElementById('resultText').textContent = 'Failed to extract data';
+                    throw new Error(data.error || 'Data extraction failed');
                 }
+                
             } catch (error) {
-                console.error('Error:', error);
+                console.error('Capture Error:', error);
+                showError(error.message);
+            }
+        }
+    
+        // Show error to user
+        function showError(message) {
+            // Reset all fields
+            licenseInput.value = '';
+            document.querySelectorAll('.data-value').forEach(el => {
+                el.textContent = 'Not found';
+            });
+            
+            // Show error alert
+            alert(`Error: ${message}`);
+        }
+    
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            initCamera();
+            captureLicenseBtn.addEventListener('click', captureLicense);
+        });
+    
+        // Cleanup on exit
+        window.addEventListener('beforeunload', () => {
+            if (video.srcObject) {
+                video.srcObject.getTracks().forEach(track => track.stop());
             }
         });
     </script>
