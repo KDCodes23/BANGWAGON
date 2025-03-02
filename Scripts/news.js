@@ -1,14 +1,20 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const apiKey = "pub_72580437a02dc7e453204306700799384ca8a"; // Replace with your NewsData.io API key
+    fetchNews();
+    fetchTweets();
+});
+
+// Fetch Ontario Political News from NewsData.io
+function fetchNews() {
+    const apiKey = "pub_72580437a02dc7e453204306700799384ca8a"; // Replace with your actual API key
     const apiUrl = `https://newsdata.io/api/1/news?apikey=${apiKey}&country=ca&category=politics&q=Ontario`;
 
     fetch(apiUrl)
         .then(response => response.json())
         .then(data => {
             const newsContainer = document.getElementById("news-container");
-            newsContainer.innerHTML = ""; // Clear default loading text
+            newsContainer.innerHTML = ""; // Clear previous content
 
-            if (data.results.length === 0) {
+            if (!data.results || data.results.length === 0) {
                 newsContainer.innerHTML = "<p>No latest news available.</p>";
                 return;
             }
@@ -38,4 +44,34 @@ document.addEventListener("DOMContentLoaded", function () {
             console.error("Error fetching news:", error);
             document.getElementById("news-container").innerHTML = "<p>Failed to load news.</p>";
         });
-});
+}
+
+// Fetch Ontario Political Tweets from Node.js Backend
+function fetchTweets() {
+    fetch("http://localhost:5000/getTweets")
+        .then(response => response.json())
+        .then(data => {
+            const tweetContainer = document.getElementById("tweets-container");
+            tweetContainer.innerHTML = ""; // Clear previous content
+
+            if (!data.data || data.data.length === 0) {
+                tweetContainer.innerHTML = "<p>No recent tweets found.</p>";
+                return;
+            }
+
+            data.data.forEach(tweet => {
+                const tweetItem = document.createElement("div");
+                tweetItem.classList.add("tweet");
+
+                const content = document.createElement("p");
+                content.textContent = tweet.text;
+
+                tweetItem.appendChild(content);
+                tweetContainer.appendChild(tweetItem);
+            });
+        })
+        .catch(error => {
+            console.error("Error loading tweets:", error);
+            document.getElementById("tweets-container").innerHTML = "<p>Failed to load tweets.</p>";
+        });
+}
