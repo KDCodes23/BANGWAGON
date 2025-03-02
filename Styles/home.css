@@ -151,3 +151,57 @@ nav ul li a:hover {
 .news-article a:hover {
     text-decoration: underline;
 }
+/* Tweets Section */
+.tweets-section {
+    width: 80%;
+    margin: 50px auto;
+    text-align: center;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.tweets-section h2 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+/* Individual Tweet */
+.tweet {
+    background: #f0f8ff; /* Light blue background */
+    padding: 15px;
+    margin: 15px 0;
+    border-radius: 8px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Tweet User Icon */
+.tweet::before {
+    content: "🔵"; /* Placeholder for profile picture */
+    font-size: 1.5rem;
+}
+
+/* Tweet Content */
+.tweet p {
+    font-size: 1rem;
+    color: #333;
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* Twitter Links */
+.tweet a {
+    text-decoration: none;
+    color: #1DA1F2;
+    font-weight: bold;
+}
+
+.tweet a:hover {
+    text-decoration: underline;
+}
