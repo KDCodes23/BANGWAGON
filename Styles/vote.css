@@ -1,0 +1,99 @@
+/* filepath: /c:/Hackathon/WebAppElection/BANGWAGON/Styles/vote.css */
+
+/* General Styles */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    background-color: #333;
+    color: #fff;
+    padding: 10px 0;
+    text-align: center;
+}
+
+header nav ul {
+    list-style: none;
+    padding: 0;
+}
+
+header nav ul li {
+    display: inline;
+    margin: 0 15px;
+}
+
+header nav ul li a {
+    color: #fff;
+    text-decoration: none;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    text-align: center;
+    color: #333;
+}
+
+.vote-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.vote-form label {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.vote-form select, .vote-form button {
+    padding: 10px;
+    margin-bottom: 15px;
+    width: 100%;
+    max-width: 400px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.vote-form button {
+    background-color: #28a745;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+}
+
+.vote-form button:hover {
+    background-color: #218838;
+}
+
+.result-message {
+    text-align: center;
+    font-size: 1.2em;
+    color: #28a745;
+    margin-top: 20px;
+}
+
+.error-message {
+    text-align: center;
+    font-size: 1.2em;
+    color: #dc3545;
+    margin-top: 20px;
+}
+
+/* Image Styles */
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
