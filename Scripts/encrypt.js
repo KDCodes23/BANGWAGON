@@ -47,11 +47,11 @@ async function addToEncryptFile(iv, key) {
     }
 }
 
-async function encryptData(plainText, key) {
+async function encryptData(obj, key) {
     const iv = crypto.getRandomValues(new Uint8Array(16)); // Generate a random IV
-
+    const jsonString = JSON.stringify(obj);
     const encoder = new TextEncoder();
-    const data = encoder.encode(plainText);
+    const data = encoder.encode(jsonString);
 
     const encrypted = await crypto.subtle.encrypt(
         { name: "AES-CBC", iv: iv },
@@ -59,10 +59,13 @@ async function encryptData(plainText, key) {
         data
     );
 
-    console.log("Encrypted Data:", Buffer.from(encrypted).toString('base64'));
+    const encryptedBase64 = Buffer.from(encrypted).toString('base64');
+    console.log("Encrypted Data:", encryptedBase64);
 
     // Save IV and key to a file
     await addToEncryptFile(iv, key);
+    
+    return { iv: Buffer.from(iv).toString('base64'), data: encryptedBase64 };
 }
 
 async function decryptData(encryptedData, key) {
