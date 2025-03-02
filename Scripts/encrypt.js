@@ -65,5 +65,53 @@ async function encryptData(plainText, key) {
     await addToEncryptFile(iv, key);
 }
 
+async function decryptData(encryptedData, key) {
+    const [iv, data] = encryptedData.split('.');
+
+    const ivBuffer = Buffer.from(iv, 'base64');
+    const dataBuffer = Buffer.from(data, 'base64');
+
+    const decrypted = await crypto.subtle.decrypt(
+        { name: "AES-CBC", iv: ivBuffer },
+        key,
+        dataBuffer
+    );
+
+    console.log("Decrypted Data:", new TextDecoder().decode(decrypted));
+}
+
+function readEncryptFile() {
+    const fileName = "Key&IV.enc";
+    fs = require('fs');
+    let encryptedData = '';
+    if(fs.existsSync(fileName)) {
+        encryptedData = fs.readFileSync(fileName, 'utf8');
+    } else 
+    {
+        console.error("File not found.");
+    }
+    return encryptedData;
+}
+
+function decryptFileData() {
+    const encryptedData = readEncryptFile();
+    decryptData(encryptedData, key);
+}
+
+function SendOverNetwork() {
+    // Send encrypted data over network
+    JSON.stringify({ encryptedData, key });
+}   
+
 // Run the functions
 generateAndImportKey().then(key => encryptData("Hello, World!", key));
+
+
+
+// First name of the user
+// Last name of the user
+// DOB
+// ID liscene of the user 
+// Address of the user
+
+
