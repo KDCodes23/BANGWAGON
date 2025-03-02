@@ -20,50 +20,117 @@
     </header>
 
     <div class="container">
-        <form action="" method="post">
-            <button type="button">
+        <form id="voteForm">
+            <button type="button" class="candidate-button" data-candidate="Doug Ford">
                 <p>Progresive Conservative:</p>
                 <p>Doug Ford</p>
                 <img src="/Aseets/DougFord2.jpeg" alt="Doug Ford">
             </button>
        
-            <button type="button">
+            <button type="button" class="candidate-button" data-candidate="Bonnie Crombie">
                 <p>Liberal Party:</p>
                 <p>Bonnie Crombie</p>
                 <img src="/Aseets/8c7dc827adf0f59f75be23feafe601f8b5010b9073d4d103c0f5f940f78abd47.jpg" alt="Bonnie Crombie">
             </button>
         
-            <button type="button">
+            <button type="button" class="candidate-button" data-candidate="Marit Stiles">
                 <p>New Democratic Party:</p>
                 <p>Marit Stiles</p>
                 <img src="/Aseets/marit-stiles-ontario-ndp-leader.avif" alt="Marit Stiles">
             </button>
        
-            <button type="button">
+            <button type="button" class="candidate-button" data-candidate="Mike Schreiner">
                 <p>Green Party:</p>
                 <p>Mike Schreiner</p>
                 <img src="/Aseets/gpo-mike-schreiner-headshot-2021-bricks-1.jpg" alt="Mike Schreiner">
             </button>
        
-            <button type="submit">Submit</button>
+            <button type="button" id="submitVote">Submit Vote</button>
         </form>
     </div>
+
+    <!-- Confirmation Box -->
+    <div id="confirmationBox" class="hidden">
+        <p>You have selected: <span id="selectedCandidate"></span></p>
+        <label>
+            <input type="checkbox" id="agreeCheckbox"> I understand that I cannot change my vote or vote again.
+        </label>
+        <button id="confirmVote" disabled>Confirm Vote</button>
+    </div>
+
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-    const buttons = document.querySelectorAll("form button:not([type='submit'])");
+   document.addEventListener("DOMContentLoaded", function () {
+    const buttons = document.querySelectorAll(".candidate-button");
+    const submitButton = document.getElementById("submitVote");
+    const confirmationBox = document.getElementById("confirmationBox");
+    const selectedCandidateText = document.getElementById("selectedCandidate");
+    const confirmVoteButton = document.getElementById("confirmVote");
+    const cancelVoteButton = document.getElementById("cancelVote");
+    const agreeCheckbox = document.getElementById("agreeCheckbox");
+    let selectedCandidate = "";
 
+    // Candidate selection
     buttons.forEach(button => {
-        button.addEventListener("click", function (event) {
-            event.preventDefault(); 
-            
-            // Remove 'selected' class from all buttons
+        button.addEventListener("click", function () {
             buttons.forEach(btn => btn.classList.remove("selected"));
-
-            // Add 'selected' class to the clicked button
             button.classList.add("selected");
+            selectedCandidate = button.getAttribute("data-candidate");
         });
     });
+
+    // Show confirmation box
+    submitButton.addEventListener("click", function () {
+        if (!selectedCandidate) {
+            alert("Please select a candidate first.");
+            return;
+        }
+        selectedCandidateText.textContent = selectedCandidate;
+        confirmationBox.classList.remove("hidden");
+    });
+
+    // Enable confirm button only if checkbox is checked
+    agreeCheckbox.addEventListener("change", function () {
+        confirmVoteButton.disabled = !agreeCheckbox.checked;
+    });
+
+    // Confirm vote action
+    confirmVoteButton.addEventListener("click", function () {
+        window.location.href = "/Pages/Confirmation.html";
+    });
+
+    // Cancel vote and hide confirmation box
+    cancelVoteButton.addEventListener("click", function () {
+        confirmationBox.classList.add("hidden");
+    });
 });
+
 </script>
+
+<style>
+.hidden {
+    display: none;
+}
+
+#confirmationBox {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    text-align: center;
+}
+
+button.selected::after {
+    content: '\25CF'; /* Unicode for a solid circle */
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 30px;
+    color: green;
+}
+</style>
 </body>
 </html>
