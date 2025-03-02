@@ -1,16 +1,12 @@
-# server.py
 from flask import Flask, request, jsonify
-from flask_cors import CORS  # Add this
+from flask_cors import CORS
 import re
 import base64
 import io
-from PIL import Image
-import pytesseract
+from google.cloud import vision
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS
-
-app = Flask(__name__)
+CORS(app)
 
 # Ontario license patterns
 LICENSE_REGEX = re.compile(r'\b([A-Z]\d{4}[ -]?\d{5}[ -]?\d{5})\b')
@@ -18,6 +14,9 @@ NAME_REGEX = re.compile(r'(?m)^.*\d{2}[A-Z]+.*\n([A-Z]+)\n([A-Z]+)')
 DOB_REGEX = re.compile(r'\b(\d{4}/\d{2}/\d{2})\b')
 ADDRESS_REGEX = re.compile(r'(\d+[-\\w]+)\n([A-Z]+),([A-Z]{2}),([A-Z0-9]{6})')
 POSTAL_CODE_REGEX = re.compile(r'([A-Z]\d[A-Z])\s?(\d[A-Z]\d)')
+
+# Initialize Google Vision client
+client = vision.ImageAnnotatorClient()
 
 def clean_ocr_text(text):
     return text.upper() \
@@ -33,13 +32,34 @@ def is_valid_canadian_license(license_number):
 @app.route('/process-license', methods=['POST'])
 def process_license():
     try:
-        data = request.json
-        image_data = data['image'].split(',')[1]  # Remove data URL prefix
-        image = Image.open(io.BytesIO(base64.b64decode(image_data)))
+        # Get JSON data and validate
+        data = request.get_json()
+        if not data or 'image' not in data:
+            return jsonify({'success': False, 'error': 'No image data received'}), 400
+            
+        # Extract base64 image data
+        image_data = data['image'].split(',')[1] if ',' in data['image'] else data['image']
         
-        # OCR processing
-        text = pytesseract.image_to_string(image)
+        # Prepare image for Google Vision
+        image_bytes = base64.b64decode(image_data)
+        vision_image = vision.Image(content=image_bytes)
+        
+        # Perform OCR using Google Vision API
+        response = client.text_detection(image=vision_image)
+        
+        if response.error.message:
+            return jsonify({
+                'success': False,
+                'error': f"Google Vision API error: {response.error.message}"
+            }), 500
+        
+        # Extract text from response
+        text = response.text_annotations[0].description if response.text_annotations else ""
         cleaned_text = clean_ocr_text(text)
+        
+        # For debugging
+        print("OCR Results:", text)
+        print("Cleaned Text:", cleaned_text)
         
         # Extract data
         license_match = LICENSE_REGEX.search(cleaned_text)
@@ -70,34 +90,17 @@ def process_license():
         })
         
     except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        })
-@app.route('/process-license', methods=['POST'])
-def process_license():
-    try:
-        data = request.get_json()  # Changed from request.json
-        if not data or 'image' not in data:
-            return jsonify({'success': False, 'error': 'No image data received'}), 400
-            
-        # Extract base64 image data
-        image_data = data['image'].split(',')[1] if ',' in data['image'] else data['image']
-        
-        # Decode image
-        image = Image.open(io.BytesIO(base64.b64decode(image_data)))
-        
-        # OCR processing
-        text = pytesseract.image_to_string(image)
-        cleaned_text = clean_ocr_text(text)
-        
-        # ... (rest of your existing processing code) ...
-
-    except Exception as e:
+        import traceback
+        print(f"Error processing license: {str(e)}")
+        print(traceback.format_exc())
         return jsonify({
             'success': False,
             'error': str(e)
         }), 500
 
+@app.route('/test', methods=['GET'])
+def test_route():
+    return jsonify({'status': 'Server is running'}), 200
+
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True) 
+    app.run(host='0.0.0.0', port=5000, debug=True)
