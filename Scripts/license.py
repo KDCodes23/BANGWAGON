@@ -53,8 +53,6 @@ class DriverInfo:
                 self.postal_code = address_parts[3] if len(address_parts) > 3 else None
                 self.full_address = full_address.strip()
 
-            driver.to_json()
-
     def to_json(self):
         """Convert the object to JSON format."""
         return json.dumps({
@@ -70,6 +68,9 @@ class DriverInfo:
             "full_address": self.full_address
         }, indent=4)
 
+# Create a new crypto handler instance and generate a key
+crypto_handler = CryptoHandler()
+crypto_handler.generate_key()
 
 # Create the driver info object
 driver = DriverInfo(
@@ -82,13 +83,48 @@ driver = DriverInfo(
 # Get the JSON data and encrypt it
 json_data = driver.to_json()
 encrypted_data = crypto_handler.encrypt(json_data)
-# Create a new crypto handler instance and generate a key
-crypto_handler = CryptoHandler()
-crypto_handler.generate_key()
-
-
 
 print("Encrypted data:", encrypted_data)
 # To decrypt: decrypted_data = crypto_handler.decrypt(encrypted_data)
 
 print(driver.to_json())
+
+class TestDriverInfo:
+    @staticmethod
+    def run_test():
+        try:
+            # Test creating a driver
+            test_driver = DriverInfo(
+                "T9876-54321",
+                "Jane Doe",
+                "1985-06-15",
+                "123 Main St, Toronto, ON, M5V 2K7"
+            )
+            
+            # Test JSON conversion
+            test_json = test_driver.to_json()
+            print("\nTest Results:")
+            print("Driver Info JSON:")
+            print(test_json)
+            
+            # Test encryption
+            test_encrypted = crypto_handler.encrypt(test_json)
+            print("\nEncrypted Data:")
+            print(test_encrypted)
+            
+            # Test decryption
+            test_decrypted = crypto_handler.decrypt(test_encrypted)
+            print("\nDecrypted Data:")
+            print(test_decrypted)
+            
+            return True
+            
+        except Exception as e:
+            print(f"Test failed: {str(e)}")
+            return False
+
+# Run the test
+test = TestDriverInfo()
+test.run_test()
+
+
