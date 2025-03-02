@@ -5,22 +5,61 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Candidates</title>
     <link rel="stylesheet" href="/Styles/candi.css">
+
 </head>
 <body>
+    <header>
+        <nav>
+            <div class="logo">Election App</div>
+            <ul>
+                <li><a href="/Pages/HomePage.html">Home</a></li>
+                <li><a href="/Pages/Verfication.html">Verify Me</a></li>
+                <li><a href="/Pages/Candidates.html">Candidates</a></li>
+                <li><a href="/Pages//Voting.html">Voting</a></li>                
+            </ul>
+        </nav>
+    </header>
+
+
+    <br>
     <h1>Image Expanding Gallery</h1>
+    <br>
     <div class="gallery">
-        <div class="image" onclick="expandImage(this)">
-            <img src="/Aseets/DougFord-scaled.jpeg" alt="Image 1">
+        <div class="image" onclick="expandImage(this)" data-description="<strong>Doug Ford</strong>
+            <strong>Party:</strong> Progressive Conservative
+            <strong>Birthdate:</strong> November 20, 1964
+            <strong>Birthplace:</strong> Etobicoke, Ontario
+            <strong>Political Views:</strong> Doug Ford's political viewpoint aligns with fiscal conservatism, prioritizing tax cuts, economic growth, and reduced government spending while advocating for business-friendly policies and infrastructure development.">
+            <img src="/Aseets/DougFord2.jpeg" alt="Doug Ford">
         </div>
-        <div class="image" onclick="expandImage(this)">
-            <img src="/Aseets/marit-stiles-ontario-ndp-leader.avif" alt="Image 2">
+
+        <div class="image" onclick="expandImage(this)" data-description="<strong>Marit Stiles</strong>
+            <strong>Party:</strong> New Democratic
+            <strong>Birthdate:</strong> September 20, 1969
+            <strong>Birthplace:</strong> St. John's, Newfoundland
+            <strong>Political Views:</strong> Marit Stiles's political viewpoint aligns with progressive policies, advocating for stronger public services, workers' rights, affordable housing, and increased government investment in education and healthcare.">
+            <img src="/Aseets/marit-stiles-ontario-ndp-leader.avif" alt="Marit Stiles">
         </div>
-        <div class="image" onclick="expandImage(this)">
-            <img src="/Aseets/8c7dc827adf0f59f75be23feafe601f8b5010b9073d4d103c0f5f940f78abd47.jpg" alt="Image 3">
+
+        <div class="image" onclick="expandImage(this)" data-description="<strong>Bonnie Crombie</strong>
+            <strong>Party:</strong> Liberal
+            <strong>Birthdate:</strong> February 5, 1960
+            <strong>Birthplace:</strong> Toronto, Ontario
+            <strong>Political Views:</strong> Bonnie Crombie's political viewpoint leans toward centrist liberalism, advocating for economic growth, housing affordability, improved public transit, and strong public services while emphasizing business-friendly policies and social equity.">
+            <img src="/Aseets/8c7dc827adf0f59f75be23feafe601f8b5010b9073d4d103c0f5f940f78abd47.jpg" alt="Bonnie Crombie">
         </div>
-        <div class="image" onclick="expandImage(this)">
-            <img src="/Aseets/gpo-mike-schreiner-headshot-2021-bricks-1.jpg" alt="Image 4">
+
+        <div class="image" onclick="expandImage(this)" data-description="<strong>Mike Schreiner</strong>
+            <strong>Party:</strong> Green
+            <strong>Birthdate:</strong> June 9, 1969
+            <strong>Birthplace:</strong> WaKeeney, Kansas
+            <strong>Political Views:</strong> Mike Schreiner's political viewpoint aligns with green progressivism, advocating for environmental sustainability, climate action, affordable housing, and strengthening public services while promoting a transition to a clean economy.">
+            <img src="/Aseets/gpo-mike-schreiner-headshot-2021-bricks-1.jpg" alt="Mike Schreiner">
         </div>
+    </div>
+
+    <div id="description-container" style="display: none; position: absolute;">
+        <p id="description-text"></p>
     </div>
 
     <script src="/Scripts/cadi.js"></script>
