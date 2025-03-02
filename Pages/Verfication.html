@@ -64,101 +64,59 @@
     </div>
 
     <script>
-        // Camera and UI Elements
-        const video = document.getElementById('video');
-        const captureLicenseBtn = document.getElementById('captureLicense');
-        const licensePreview = document.getElementById('licensePreview');
-        const licenseInput = document.getElementById('licenseInput');
-        
-        // Camera Initialization
-        async function initCamera() {
-            try {
-                const constraints = {
-                    video: {
-                        facingMode: 'environment',
-                        width: { ideal: 1280 },
-                        height: { ideal: 720 }
-                    }
-                };
-                
-                const stream = await navigator.mediaDevices.getUserMedia(constraints);
-                video.srcObject = stream;
-                video.play();
-                
-                // Handle stream stopped
-                video.srcObject.getVideoTracks()[0].addEventListener('ended', () => {
-                    console.log('Camera stream ended');
-                    alert('Camera access was revoked. Please reload the page.');
-                });
-                
-            } catch (error) {
-                console.error('Camera Error:', error);
-                handleCameraError(error);
-            }
-        }
-    
-        // Error Handling
-        function handleCameraError(error) {
-            let message = 'Cannot access camera: ';
-            switch (error.name) {
-                case 'NotAllowedError':
-                    message += 'Permission denied';
-                    break;
-                case 'NotFoundError':
-                    message += 'No camera found';
-                    break;
-                case 'NotReadableError':
-                    message += 'Camera is already in use';
-                    break;
-                default:
-                    message += 'Unknown error';
-            }
-            alert(message);
-        }
-    
-        // Capture License Handler
+        // Modified captureLicense function with error handling improvements
         async function captureLicense() {
             try {
-                // Capture image from video stream
                 const canvas = document.createElement('canvas');
                 canvas.width = video.videoWidth;
                 canvas.height = video.videoHeight;
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
                 
-                // Show preview
                 licensePreview.src = canvas.toDataURL('image/jpeg');
                 licensePreview.style.display = 'block';
                 
-                // Process with server
-                const response = await fetch('http://localhost:5000/process-license', {
-                    method: 'POST',
-                    mode: 'cors',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        image: canvas.toDataURL('image/jpeg', 0.8) // 80% quality
-                    })
-                });
+                // Convert canvas to Blob for better handling
+                canvas.toBlob(async (blob) => {
+                    try {
+                        const reader = new FileReader();
+                        reader.onloadend = async () => {
+                            const base64data = reader.result;
+                            
+                            const response = await fetch('http://localhost:5000/process-license', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({
+                                    image: base64data.split(',')[1] // Send only the base64 data
+                                })
+                            });
     
-                // Handle HTTP errors
-                if (!response.ok) {
-                    const error = await response.json();
-                    throw new Error(error.error || 'Server error');
-                }
+                            if (!response.ok) {
+                                const error = await response.text();
+                                throw new Error(`Server error: ${error}`);
+                            }
     
-                // Update UI with results
-                const data = await response.json();
-                if (data.success) {
-                    licenseInput.value = data.license_number || '';
-                    document.getElementById('nameValue').textContent = data.full_name || 'Not found';
-                    document.getElementById('dobValue').textContent = data.dob || 'Not found';
-                    document.getElementById('addressValue').textContent = data.address || 'Not found';
-                } else {
-                    throw new Error(data.error || 'Data extraction failed');
-                }
+                            const data = await response.json();
+                            console.log('Server response:', data); // Debug log
+    
+                            if (data.success) {
+                                licenseInput.value = data.license_number || '';
+                                document.getElementById('nameValue').textContent = data.full_name || 'Not found';
+                                document.getElementById('dobValue').textContent = data.dob || 'Not found';
+                                document.getElementById('addressValue').textContent = data.address || 'Not found';
+                            } else {
+                                throw new Error(data.error || 'Data extraction failed');
+                            }
+                        };
+                        reader.readAsDataURL(blob);
+                        
+                    } catch (error) {
+                        console.error('Processing Error:', error);
+                        showError(error.message);
+                    }
+                }, 'image/jpeg', 0.8);
                 
             } catch (error) {
                 console.error('Capture Error:', error);
@@ -166,30 +124,43 @@
             }
         }
     
-        // Show error to user
-        function showError(message) {
-            // Reset all fields
-            licenseInput.value = '';
-            document.querySelectorAll('.data-value').forEach(el => {
-                el.textContent = 'Not found';
-            });
-            
-            // Show error alert
-            alert(`Error: ${message}`);
-        }
-    
-        // Event Listeners
-        document.addEventListener('DOMContentLoaded', () => {
-            initCamera();
-            captureLicenseBtn.addEventListener('click', captureLicense);
+        // Add error event listeners
+        video.addEventListener('error', (e) => {
+            console.error('Video Error:', e);
+            showError('Video stream error');
         });
     
-        // Cleanup on exit
-        window.addEventListener('beforeunload', () => {
-            if (video.srcObject) {
-                video.srcObject.getTracks().forEach(track => track.stop());
+        // Updated initCamera with better device selection
+        async function initCamera() {
+            try {
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                const videoDevices = devices.filter(device => device.kind === 'videoinput');
+                
+                const constraints = {
+                    video: {
+                        deviceId: videoDevices[0].deviceId,
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 },
+                        frameRate: { ideal: 30 }
+                    }
+                };
+                
+                const stream = await navigator.mediaDevices.getUserMedia(constraints);
+                video.srcObject = stream;
+                
+                // Add loadedmetadata handler
+                await new Promise((resolve) => {
+                    video.addEventListener('loadedmetadata', () => {
+                        video.play();
+                        resolve();
+                    });
+                });
+                
+            } catch (error) {
+                console.error('Camera Error:', error);
+                handleCameraError(error);
             }
-        });
+        }
     </script>
 </body>
 </html>
