@@ -1,26 +1,78 @@
+<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verification</title>
+    <title>License Verification</title>
     <link rel="stylesheet" href="/Styles/Veri.css">
 </head>
 <body>
-    <div class="login-container">
-        <h2>Login</h2>
-        <form action="#" method="POST">
-            <div class="input-group">
-                <label for="username">Username</label>
-                <input type="text" id="username" name="username" required>
-            </div>
-            <div class="input-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" required>
-            </div>
-            <button type="submit" class="login-btn">Login</button>
-            <p class="register-link">Don't have an account? <a href="#">Register</a></p>
-        </form>
+    <div class="container">
+        <div class="camera-preview" id="cameraPreview">
+            <video id="video" width="100%" height="100%" autoplay></video>
+        </div>
+
+        <input type="text" class="license-input" placeholder="Enter Driver's License Number" id="licenseInput">
+        
+        <button class="capture-button" id="captureLicense">Capture License</button>
+        <div class="preview-container">
+            <img src="#" class="image-preview" id="licensePreview" alt="License preview">
+        </div>
+
+        <button class="capture-button" id="captureFace">Capture Face</button>
+        <div class="preview-container">
+            <img src="#" class="image-preview" id="facePreview" alt="Face preview">
+        </div>
+
+        <div class="result-text" id="resultText">Extracted Data Will Appear Here</div>
     </div>
+
+    <script>
+        // Webcam access
+        const video = document.getElementById('video');
+        let licenseImageData = null;
+
+        // Start webcam
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => video.srcObject = stream)
+            .catch(err => console.error('Error accessing camera:', err));
+
+        // Capture License
+        document.getElementById('captureLicense').addEventListener('click', async () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+            
+            const preview = document.getElementById('licensePreview');
+            licenseImageData = canvas.toDataURL('image/jpeg');
+            preview.src = licenseImageData;
+            preview.style.display = 'block';
+
+            // Send to Python backend for processing
+            try {
+                const response = await fetch('http://localhost:5000/process-license', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ image: licenseImageData })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    document.getElementById('resultText').innerHTML = `
+                        License: ${data.license_number}<br>
+                        Name: ${data.full_name}<br>
+                        DOB: ${data.dob}<br>
+                        Address: ${data.address}
+                    `;
+                } else {
+                    document.getElementById('resultText').textContent = 'Failed to extract data';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        });
+    </script>
 </body>
 </html>
