@@ -95,5 +95,7 @@ object = DriverInfo(
     license_data["Address"]
 )
 
+object.convert_to_json()
+
 
 print("\n💾 License details saved in 'license_details.json'")

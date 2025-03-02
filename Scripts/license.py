@@ -1,5 +1,6 @@
 import json
 from datetime import datetime
+from encrypt import CryptoHandler  # Import the encryption class
 
 class DriverInfo:
     def __init__(self, id, first_last_full_string, dob, full_address):
@@ -52,6 +53,8 @@ class DriverInfo:
                 self.postal_code = address_parts[3] if len(address_parts) > 3 else None
                 self.full_address = full_address.strip()
 
+            driver.to_json()
+
     def to_json(self):
         """Convert the object to JSON format."""
         return json.dumps({
@@ -67,12 +70,25 @@ class DriverInfo:
             "full_address": self.full_address
         }, indent=4)
 
-# Example usage
+
+# Create the driver info object
 driver = DriverInfo(
     "D1234-56789",
     "John Smith",
     "1990-01-01",
     "206-320 KINGSWOOD DR, KITCHENER, ON, N2E 2K2"
 )
+
+# Get the JSON data and encrypt it
+json_data = driver.to_json()
+encrypted_data = crypto_handler.encrypt(json_data)
+# Create a new crypto handler instance and generate a key
+crypto_handler = CryptoHandler()
+crypto_handler.generate_key()
+
+
+
+print("Encrypted data:", encrypted_data)
+# To decrypt: decrypted_data = crypto_handler.decrypt(encrypted_data)
 
 print(driver.to_json())
