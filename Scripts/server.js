@@ -1,11 +1,7 @@
 require('dotenv').config();
-const accessToken = process.env.TWITTER_ACCESS_TOKEN;
-const accessSecret = process.env.TWITTER_ACCESS_SECRET;
 
 const axios = require('axios');
-
-
-const BEARER_TOKEN = "AAAAAAAAAAAAAAAAAAAAAKmRzgEAAAAAON7cXweYSFbh3NW8%2FK7PpcHWKlA%3DhtmxdXiEnVXUEIKsqkEBl04iKisRg6wiKmaRpAGEFvofpx73wB";
+const BEARER_TOKEN = process.env.TWITTER_BEARER_TOKEN;
 
 const fetchTweets = async () => {
     try {
@@ -16,7 +12,7 @@ const fetchTweets = async () => {
             params: {
                 query: 'Ontario politics',
                 'tweet.fields': 'created_at,text,author_id',
-                max_results: 1
+                max_results: 5
             }
         });
 
