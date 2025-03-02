@@ -213,7 +213,14 @@ class CryptoHandler:
         
         # Use provided document or the class's json_data
         if document:
-            self.json_data = document
+            # Convert document to dictionary if it has a to_dict method
+            if hasattr(document, 'to_dict'):
+                self.json_data = document.to_dict()
+            # Convert document to dictionary if it has a __dict__ attribute
+            elif hasattr(document, '__dict__'):
+                self.json_data = document.__dict__
+            else:
+                self.json_data = document
         
         if not self.json_data:
             raise ValueError("No data provided for encryption.")
