@@ -1,224 +1,224 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>License Verification</title>
-    <link rel="stylesheet" href="/Styles/Veri.css">
-    <link rel="stylesheet" href="/Styles/home.css">
-    <style>
-        /* Add these styles to your Veri.css */
-        .data-field { margin-bottom: 8px; }
-        .data-label { font-weight: bold; color: #666; }
-        .data-value { color: #333; }
-    </style>
-</head>
-<body>
-    <header>
-        <nav>
-            <div class="logo">Election App</div>
-            <ul>
-                <li><a href="/Pages/HomePage.html">Home</a></li>
-                <li><a href="/Pages/Verfication.html">Verify Me</a></li>
-                <li><a href="/Pages/Candidates.html">Candidates</a></li>
-                <li><a href="/Pages//Voting.html">Voting</a></li>                
-            </ul>
-        </nav>
-    </header>
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>License Verification</title>
+        <link rel="stylesheet" href="/Styles/Veri.css">
+        <link rel="stylesheet" href="/Styles/home.css">
+        <style>
+            /* Add these styles to your Veri.css */
+            .data-field { margin-bottom: 8px; }
+            .data-label { font-weight: bold; color: #666; }
+            .data-value { color: #333; }
+        </style>
+    </head>
+    <body>
+        <header>
+            <nav>
+                <div class="logo">Election App</div>
+                <ul>
+                    <li><a href="/Pages/HomePage.html">Home</a></li>
+                    <li><a href="/Pages/Verfication.html">Verify Me</a></li>
+                    <li><a href="/Pages/Candidates.html">Candidates</a></li>
+                    <li><a href="/Pages//Voting.html">Voting</a></li>                
+                </ul>
+            </nav>
+        </header>
 
-    <div class="container">
-        <div class="camera-preview" id="cameraPreview">
-            <video id="video" width="100%" height="100%" autoplay></video>
-        </div>
-
-        <!-- Single license input -->
-        <input type="text" class="license-input" 
-               placeholder="Driver's License Number"
-               id="licenseInput" readonly>
-
-        <button class="capture-button" id="captureLicense" type="button">Capture License</button>
-        <div class="preview-container">
-            <img src="#" class="image-preview" id="licensePreview" alt="License preview">
-        </div>
-
-        <button class="capture-button" id="captureFace" type="button">Capture Face</button>
-        <div class="preview-container">
-            <img src="#" class="image-preview" id="facePreview" alt="Face preview">
-        </div>
-
-        <!-- Single result text container -->
-        <div class="result-text" id="resultText">
-            <div class="data-field">
-                <span class="data-label">Name:</span>
-                <span class="data-value" id="nameValue">Not found</span>
+        <div class="container">
+            <div class="camera-preview" id="cameraPreview">
+                <video id="video" width="100%" height="100%" autoplay></video>
             </div>
-            <div class="data-field">
-                <span class="data-label">Date of Birth:</span>
-                <span class="data-value" id="dobValue">Not found</span>
+
+            <!-- Single license input -->
+            <input type="text" class="license-input" 
+                placeholder="Driver's License Number"
+                id="licenseInput" readonly>
+
+            <button class="capture-button" id="captureLicense" type="button">Capture License</button>
+            <div class="preview-container">
+                <img src="#" class="image-preview" id="licensePreview" alt="License preview">
             </div>
-            <div class="data-field">
-                <span class="data-label">Address:</span>
-                <span class="data-value" id="addressValue">Not found</span>
+
+            <button class="capture-button" id="captureFace" type="button">Capture Face</button>
+            <div class="preview-container">
+                <img src="#" class="image-preview" id="facePreview" alt="Face preview">
+            </div>
+
+            <!-- Single result text container -->
+            <div class="result-text" id="resultText">
+                <div class="data-field">
+                    <span class="data-label">Name:</span>
+                    <span class="data-value" id="nameValue">Not found</span>
+                </div>
+                <div class="data-field">
+                    <span class="data-label">Date of Birth:</span>
+                    <span class="data-value" id="dobValue">Not found</span>
+                </div>
+                <div class="data-field">
+                    <span class="data-label">Address:</span>
+                    <span class="data-value" id="addressValue">Not found</span>
+                </div>
             </div>
         </div>
-    </div>
 
-    <script>
-      // Global variables
-let video = document.getElementById('video');
-let licensePreview = document.getElementById('licensePreview');
-let facePreview = document.getElementById('facePreview');
-let licenseInput = document.getElementById('licenseInput');
-let captureLicenseBtn = document.getElementById('captureLicense');
-let captureFaceBtn = document.getElementById('captureFace');
-let resultText = document.getElementById('resultText');
+        <script>
+        // Global variables
+    let video = document.getElementById('video');
+    let licensePreview = document.getElementById('licensePreview');
+    let facePreview = document.getElementById('facePreview');
+    let licenseInput = document.getElementById('licenseInput');
+    let captureLicenseBtn = document.getElementById('captureLicense');
+    let captureFaceBtn = document.getElementById('captureFace');
+    let resultText = document.getElementById('resultText');
 
-document.addEventListener('DOMContentLoaded', function() {
-    initCamera();
-    
-    // Add event listeners with explicit event parameter
-    captureLicenseBtn.addEventListener('click', function(event) {
-        event.preventDefault();
-        event.stopPropagation();
-        captureLicense();
-        return false;
-    });
-    
-    captureFaceBtn.addEventListener('click', function(event) {
-        event.preventDefault();
-        event.stopPropagation();
-        captureFace();
-        return false;
-    });
-});
-
-// Error handling function
-function showError(message) {
-    console.error('Error:', message);
-    alert('Error: ' + message);
-}
-
-function handleCameraError(error) {
-    console.error('Camera error:', error);
-    showError('Camera access error: ' + error.message);
-}
-
-// Initialize camera
-async function initCamera() {
-    try {
-        const constraints = {
-            video: {
-                width: { ideal: 1280 },
-                height: { ideal: 720 },
-                facingMode: 'environment'
-            }
-        };
+    document.addEventListener('DOMContentLoaded', function() {
+        initCamera();
         
-        const stream = await navigator.mediaDevices.getUserMedia(constraints);
-        video.srcObject = stream;
-        
-        return new Promise((resolve) => {
-            video.onloadedmetadata = () => {
-                video.play();
-                resolve();
-            };
+        // Add event listeners with explicit event parameter
+        captureLicenseBtn.addEventListener('click', function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            captureLicense();
+            return false;
         });
-    } catch (error) {
-        handleCameraError(error);
+        
+        captureFaceBtn.addEventListener('click', function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            captureFace();
+            return false;
+        });
+    });
+
+    // Error handling function
+    function showError(message) {
+        console.error('Error:', message);
+        alert('Error: ' + message);
     }
-}
 
-// Capture license image
-async function captureLicense() {
-    try {
-        const canvas = document.createElement('canvas');
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        
-        licensePreview.src = canvas.toDataURL('image/jpeg');
-        licensePreview.style.display = 'block';
-        
-        canvas.toBlob(async (blob) => {
-            try {
-                const reader = new FileReader();
-                reader.onloadend = async () => {
-                    const base64data = reader.result;
-                    
-                    document.getElementById('nameValue').textContent = 'Processing...';
-                    document.getElementById('dobValue').textContent = 'Processing...';
-                    document.getElementById('addressValue').textContent = 'Processing...';
-                    
-                    const response = await fetch('http://localhost:5000/process-license', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ image: base64data })
-                    });
+    function handleCameraError(error) {
+        console.error('Camera error:', error);
+        showError('Camera access error: ' + error.message);
+    }
 
-                    if (!response.ok) {
-                        const error = await response.text();
-                        throw new Error(`Server error: ${error}`);
-                    }
-
-                    const data = await response.json();
-
-                    if (data.success) {
-                        licenseInput.value = data.license_number || '';
-                        document.getElementById('nameValue').textContent = data.full_name || 'Not found';
-                        document.getElementById('dobValue').textContent = data.dob || 'Not found';
-                        document.getElementById('addressValue').textContent = data.address || 'Not found';
-                    } else {
-                        throw new Error(data.error || 'Data extraction failed');
-                    }
+    // Initialize camera
+    async function initCamera() {
+        try {
+            const constraints = {
+                video: {
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 },
+                    facingMode: 'environment'
+                }
+            };
+            
+            const stream = await navigator.mediaDevices.getUserMedia(constraints);
+            video.srcObject = stream;
+            
+            return new Promise((resolve) => {
+                video.onloadedmetadata = () => {
+                    video.play();
+                    resolve();
                 };
-                reader.readAsDataURL(blob);
-                
-            } catch (error) {
-                console.error('Processing Error:', error);
-                showError(error.message);
-                document.getElementById('nameValue').textContent = 'Error: ' + error.message;
-                document.getElementById('dobValue').textContent = 'Not found';
-                document.getElementById('addressValue').textContent = 'Not found';
-            }
-        }, 'image/jpeg', 0.95); 
-        
-    } catch (error) {
-        console.error('Capture Error:', error);
-        showError(error.message);
+            });
+        } catch (error) {
+            handleCameraError(error);
+        }
     }
-}
 
-// Capture face image
-async function captureFace() {
-    try {
-        const canvas = document.createElement('canvas');
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        
-        facePreview.src = canvas.toDataURL('image/jpeg');
-        facePreview.style.display = 'block';
-    } catch (error) {
-        console.error('Face Capture Error:', error);
-        showError(error.message);
+    // Capture license image
+    async function captureLicense() {
+        try {
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            licensePreview.src = canvas.toDataURL('image/jpeg');
+            licensePreview.style.display = 'block';
+            
+            canvas.toBlob(async (blob) => {
+                try {
+                    const reader = new FileReader();
+                    reader.onloadend = async () => {
+                        const base64data = reader.result;
+                        
+                        document.getElementById('nameValue').textContent = 'Processing...';
+                        document.getElementById('dobValue').textContent = 'Processing...';
+                        document.getElementById('addressValue').textContent = 'Processing...';
+                        
+                        const response = await fetch('http://localhost:5000/process-license', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ image: base64data })
+                        });
+
+                        if (!response.ok) {
+                            const error = await response.text();
+                            throw new Error(`Server error: ${error}`);
+                        }
+
+                        const data = await response.json();
+
+                        if (data.success) {
+                            licenseInput.value = data.license_number || '';
+                            document.getElementById('nameValue').textContent = data.full_name || 'Not found';
+                            document.getElementById('dobValue').textContent = data.dob || 'Not found';
+                            document.getElementById('addressValue').textContent = data.address || 'Not found';
+                        } else {
+                            throw new Error(data.error || 'Data extraction failed');
+                        }
+                    };
+                    reader.readAsDataURL(blob);
+                    
+                } catch (error) {
+                    console.error('Processing Error:', error);
+                    showError(error.message);
+                    document.getElementById('nameValue').textContent = 'Error: ' + error.message;
+                    document.getElementById('dobValue').textContent = 'Not found';
+                    document.getElementById('addressValue').textContent = 'Not found';
+                }
+            }, 'image/jpeg', 0.95); 
+            
+        } catch (error) {
+            console.error('Capture Error:', error);
+            showError(error.message);
+        }
     }
-}
 
-// Check for camera permissions and browser support
-function checkCameraSupport() {
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        showError('Camera access is not supported in this browser');
-        return false;
+    // Capture face image
+    async function captureFace() {
+        try {
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            facePreview.src = canvas.toDataURL('image/jpeg');
+            facePreview.style.display = 'block';
+        } catch (error) {
+            console.error('Face Capture Error:', error);
+            showError(error.message);
+        }
     }
-    return true;
-}
 
-// Call on page load for camera permission check
-if (checkCameraSupport()) {
-    initCamera();
-}
-    </script>
-</body>
-</html>
+    // Check for camera permissions and browser support
+    function checkCameraSupport() {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            showError('Camera access is not supported in this browser');
+            return false;
+        }
+        return true;
+    }
+
+    // Call on page load for camera permission check
+    if (checkCameraSupport()) {
+        initCamera();
+    }
+        </script>
+    </body>
+    </html>
