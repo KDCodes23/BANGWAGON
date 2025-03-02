@@ -12,7 +12,7 @@ const fetchTweets = async () => {
             params: {
                 query: 'Ontario politics',
                 'tweet.fields': 'created_at,text,author_id',
-                max_results: 5
+                max_results: 15
             }
         });
 
