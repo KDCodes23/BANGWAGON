@@ -1,8 +1,10 @@
-async function generateAndImportKey() {
+async function generateAndImportKey() 
+{
+    const len = 256;
     const key = await crypto.subtle.generateKey(
       {
         name: "AES-CBC",
-        length: 256, // Or 128 or 192
+        length: len, // Or 128 or 192
       },
       true,
       ["encrypt", "decrypt"]
