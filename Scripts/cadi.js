@@ -37,4 +37,6 @@ function expandImage(element) {
         // Hide the description container if no description exists
         descriptionContainer.style.display = 'none';
     }
+
+    
 }
