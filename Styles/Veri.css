@@ -1,44 +1,71 @@
-.container { max-width: 600px; margin: 0 auto; padding: 16px; background-color: #f5f5f5; font-family: Arial, sans-serif; }
-.camera-preview { width: 100%; height: 300px; background-color: #555; margin-bottom: 16px; }
-.license-input { width: 100%; padding: 8px; margin-bottom: 8px; font-size: 16px; border: 1px solid #ccc; border-radius: 4px; }
-.capture-button { width: 100%; padding: 8px; margin: 8px 0; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
-.image-preview { width: 100%; height: 150px; background-color: #555; margin: 8px 0; display: none; object-fit: contain; }
-.result-text { padding: 8px; font-size: 16px; color: #333; font-weight: bold; margin-top: 16px; background-color: white; border-radius: 4px; }
-.preview-container { background-color: #555; margin: 8px 0; }
 .container {
     max-width: 600px;
-    margin: 0 auto;
-    padding: 16px;
-    background-color: #f5f5f5;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     font-family: Arial, sans-serif;
+}
+
+.container h2 {
+    text-align: center;
+    margin-top: 0;
+    color: #333;
+}
+
+.container p {
+    text-align: center;
+    color: #666;
+    margin-bottom: 20px;
 }
 
 .camera-preview {
     width: 100%;
     height: 300px;
-    background-color: #555;
+    background-color: #333;
     margin-bottom: 16px;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+}
+
+.camera-preview video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 .license-input {
     width: 100%;
-    padding: 8px;
-    margin-bottom: 8px;
+    padding: 12px;
+    margin-bottom: 12px;
     font-size: 16px;
-    border: 1px solid #ccc;
+    border: 1px solid #ddd;
     border-radius: 4px;
+    box-sizing: border-box;
 }
 
 .capture-button {
     width: 100%;
-    padding: 8px;
-    margin: 8px 0;
+    padding: 12px;
+    margin: 12px 0;
     background-color: #007bff;
     color: white;
     border: none;
     border-radius: 4px;
     cursor: pointer;
     font-size: 16px;
+    transition: background-color 0.3s;
+}
+
+.capture-button:hover {
+    background-color: #0056b3;
+}
+
+.capture-button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
 }
 
 .image-preview {
@@ -46,21 +73,87 @@
     height: 150px;
     background-color: #555;
     margin: 8px 0;
-    display: none; /* Initially hidden */
+    display: none;
     object-fit: contain;
+    border-radius: 4px;
 }
 
 .result-text {
-    padding: 8px;
+    padding: 16px;
     font-size: 16px;
     color: #333;
-    font-weight: bold;
     margin-top: 16px;
     background-color: white;
-    border-radius: 4px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
 .preview-container {
     background-color: #555;
-    margin: 8px 0;
+    margin: 12px 0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+/* Status indicators */
+.status-indicator {
+    padding: 12px;
+    border-radius: 4px;
+    margin: 10px 0;
+    text-align: center;
+    font-weight: bold;
+}
+
+.processing-status {
+    background-color: #FFF8E1;
+    color: #FF8F00;
+    border-left: 4px solid #FF8F00;
+}
+
+.success-status {
+    background-color: #E8F5E9;
+    color: #2E7D32;
+    border-left: 4px solid #2E7D32;
+}
+
+.error-status {
+    background-color: #FFEBEE;
+    color: #C62828;
+    border-left: 4px solid #C62828;
+}
+
+/* Data field styling */
+.data-field {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.data-field:last-child {
+    border-bottom: none;
+}
+
+.license-number-field {
+    background-color: #f0f7ff;
+    border-left: 4px solid #007bff;
+}
+
+.data-label {
+    font-weight: bold;
+    color: #555;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.data-value {
+    color: #333;
+    word-break: break-word;
+}
+
+.processing {
+    color: #FF8F00;
+    font-style: italic;
+}
+
+.error {
+    color: #C62828;
 }
