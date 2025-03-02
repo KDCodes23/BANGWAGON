@@ -3,7 +3,9 @@ import base64
 import json
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
-
+from pymongo import MongoClient
+from pymongo.server_api import ServerApi
+from dotenv import load_dotenv
 
 class CryptoHandler:
     def __init__(self, key_file="Key&IV.enc", json_data=None):
@@ -16,6 +18,40 @@ class CryptoHandler:
             self.json_data = json_data
         self.key = None
         self.backend = default_backend()
+        
+        # MongoDB connection attributes - initialized to None, will be set up later
+        self.client = None
+        self.db = None
+        self.collection = None
+        
+        # Set up MongoDB connection
+        self._setup_mongodb_connection()
+    
+    def _setup_mongodb_connection(self):
+        """Set up the MongoDB connection using hardcoded values and environment variables"""
+        try:
+            # Load environment variables
+            load_dotenv()
+            db_password = os.getenv("DB_PASSWORD")
+            
+            if not db_password:
+                print("Warning: DB_PASSWORD not found in .env file. MongoDB connection not established.")
+                return
+            
+            # Hardcoded MongoDB connection details
+            uri = f"mongodb+srv://muhammadelsoukkary:{db_password}@electionapp.sz7we.mongodb.net/?retryWrites=true&w=majority&appName=ElectionApp"
+            db_name = "VoterInfo"
+            collection_name = "ElectionApp"
+            
+            # Establish connection
+            self.client = MongoClient(uri, server_api=ServerApi('1'))
+            self.client.admin.command('ping')  # Verify connection
+            self.db = self.client[db_name]
+            self.collection = self.db[collection_name]
+            print("Successfully connected to MongoDB!")
+        except Exception as e:
+            print(f"Error connecting to MongoDB: {e}")
+            self.collection = None  # Ensure collection is None if connection fails
     
     def generate_key(self, key_size=32):
         """Generate a new AES key (default: 256 bits)."""
@@ -169,157 +205,70 @@ class CryptoHandler:
             raise ValueError("No key available to export")
         return base64.b64encode(self.key).decode('utf-8')
     
-    def read_encrypted_file(self):
-        """Read all encrypted data entries from the key file."""
-        try:
-            if os.path.exists(self.key_file):
-                with open(self.key_file, 'r') as file:
-                    lines = file.readlines()
-                return [line.strip() for line in lines if line.strip()]
-            else:
-                print(f"File {self.key_file} not found.")
-                return []
-        except Exception as err:
-            print(f"Error reading file: {err}")
-            return []
-    
-    def decrypt_file_entries(self):
-        """Decrypt all entries in the key file."""
-        entries = self.read_encrypted_file()
-        results = []
+    # New MongoDB specific methods
+    def encrypt_and_store(self, document=None):
+        """Encrypt a document and store it in MongoDB"""
+        if self.collection is None:  # Fix: Explicitly check if collection is None
+            raise ValueError("MongoDB collection not set up properly.")
         
-        for entry in entries:
-            try:
-                # The first 16 bytes (after base64 decoding) are the IV,
-                # The rest is the key we used for encryption
-                raw_data = base64.b64decode(entry)
-                iv = raw_data[:16]
-                key = raw_data[16:]
-                
-                # Save the current key to restore it later
-                current_key = self.key
-                
-                # Use the key from the file
-                self.key = key
-                
-                # We need to create a properly formatted string for decryption
-                # Since we don't have the actual encrypted data here, this is a placeholder
-                print(f"Found key entry with IV: {base64.b64encode(iv).decode('utf-8')}")
-                
-                # Restore the original key
-                self.key = current_key
-                
-            except Exception as e:
-                print(f"Error processing entry: {e}")
+        # Use provided document or the class's json_data
+        if document:
+            self.json_data = document
         
-        return results
-    
-    def encrypt_file(self, file_path, output_path=None):
-        """Encrypt an entire file."""
-        if not output_path:
-            output_path = file_path + '.enc'
+        if not self.json_data:
+            raise ValueError("No data provided for encryption.")
         
-        try:
-            with open(file_path, 'rb') as f:
-                file_data = f.read()
-            
-            # Generate a random IV
-            iv = os.urandom(16)
-            
-            # Create cipher and encryptor
-            cipher = Cipher(algorithms.AES(self.key), modes.CBC(iv), backend=self.backend)
-            encryptor = cipher.encryptor()
-            
-            # Pad the data
-            padded_data = self._pad_data(file_data)
-            
-            # Encrypt the data
-            encrypted = encryptor.update(padded_data) + encryptor.finalize()
-            
-            # Write IV and encrypted data to output file
-            with open(output_path, 'wb') as f:
-                f.write(iv)
-                f.write(encrypted)
-            
-            print(f"File encrypted successfully: {output_path}")
-            return True
-            
-        except Exception as e:
-            print(f"Error encrypting file: {e}")
-            return False
-    
-    def decrypt_file(self, encrypted_file_path, output_path=None):
-        """Decrypt an encrypted file."""
-        if not output_path:
-            # Remove .enc extension if present
-            if encrypted_file_path.endswith('.enc'):
-                output_path = encrypted_file_path[:-4]
-            else:
-                output_path = encrypted_file_path + '.dec'
+        # Encrypt the data
+        encrypted = self.encrypt()
         
-        try:
-            with open(encrypted_file_path, 'rb') as f:
-                # Read the IV (first 16 bytes)
-                iv = f.read(16)
-                # Read the rest as encrypted data
-                encrypted_data = f.read()
-            
-            # Create cipher and decryptor
-            cipher = Cipher(algorithms.AES(self.key), modes.CBC(iv), backend=self.backend)
-            decryptor = cipher.decryptor()
-            
-            # Decrypt the data
-            decrypted = decryptor.update(encrypted_data) + decryptor.finalize()
-            
-            # Remove padding
-            unpadded_data = self._unpad_data(decrypted).encode('utf-8')
-            
-            # Write decrypted data to output file
-            with open(output_path, 'wb') as f:
-                f.write(unpadded_data)
-            
-            print(f"File decrypted successfully: {output_path}")
-            return True
-            
-        except Exception as e:
-            print(f"Error decrypting file: {e}")
-            return False
-
-
-# Example usage
-if __name__ == "__main__":
-    # Create a crypto handler instance with JSON data
-    sensitive_data = {
-        "first_name": "John",
-        "last_name": "Doe",
-        "dob": "1990-01-01",
-        "id_license": "ABC123456",
-        "address": "123 Main St, Anytown, US"
-    }
+        # Create a MongoDB document with encrypted data
+        mongo_doc = {
+            "encrypted_data": encrypted
+        }
+        
+        # Store in MongoDB
+        result = self.collection.insert_one(mongo_doc)
+        print(f"Document stored in MongoDB with ID: {result.inserted_id}")
+        return result.inserted_id
     
-    crypto = CryptoHandler(json_data=sensitive_data)
+    def retrieve_and_decrypt(self, query):
+        """Retrieve an encrypted document from MongoDB and decrypt it"""
+        if self.collection is None:  # Fix: Explicitly check if collection is None
+            raise ValueError("MongoDB collection not set up properly.")
+        
+        document = self.collection.find_one(query)
+        if not document:
+            raise ValueError(f"No document found matching query: {query}")
+        
+        if "encrypted_data" not in document:
+            raise ValueError("Document found but contains no encrypted data")
+        
+        # Parse the encrypted data
+        encrypted_data = json.loads(document["encrypted_data"])
+        
+        # Decrypt and return
+        decrypted = self.decrypt(encrypted_data)
+        return decrypted
     
-    # Generate a new key
-    key = crypto.generate_key()
-    
-    # Encrypt the JSON data
-    encrypted = crypto.encrypt()
-    print(f"Encrypted: {encrypted}")
-    
-    # Decrypt the data
-    decrypted = crypto.decrypt(json.loads(encrypted))
-    print(f"Decrypted: {decrypted}")
-    
-    # Export the key for storage
-    key_b64 = crypto.export_key()
-    print(f"Exported key: {key_b64}")
-    
-    # Import a key (in a new instance)
-    crypto2 = CryptoHandler()
-    crypto2.import_key(key_b64)
-    
-    # Encrypt a file
-    # crypto.encrypt_file("example.txt")
-    
-    # Decrypt a file
-    # crypto.decrypt_file("example.txt.enc")
+    def update_encrypted_document(self, query, new_data):
+        """Update an existing document with new encrypted data"""
+        if self.collection is None:  # Fix: Explicitly check if collection is None
+            raise ValueError("MongoDB collection not set up properly.")
+        
+        # Find the document first
+        document = self.collection.find_one(query)
+        if not document:
+            raise ValueError(f"No document found matching query: {query}")
+        
+        # Encrypt the new data
+        self.json_data = new_data
+        encrypted = self.encrypt()
+        
+        # Update in MongoDB
+        result = self.collection.update_one(
+            query,
+            {"$set": {"encrypted_data": encrypted}}
+        )
+        
+        print(f"Updated {result.modified_count} document(s)")
+        return result.modified_count
