@@ -4,7 +4,7 @@ const cors = require('cors');
 const axios = require('axios');
 
 const app = express();
-const PORT = 5000;
+const PORT = 5001;
 
 // Allow frontend to access backend (CORS issue fix)
 app.use(cors());
