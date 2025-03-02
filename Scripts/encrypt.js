@@ -1,29 +1,27 @@
-async function encryptData(plainText, secretKey) {
-    const encoder = new TextEncoder();
-    const encodedText = encoder.encode(plainText);
-    
-    // Convert secret key to CryptoKey
-    const key = await crypto.subtle.importKey(
-        "raw",
-        new TextEncoder().encode(secretKey),
-        { name: "AES-GCM" },
-        false,
-        ["encrypt"]
+async function generateAndImportKey() {
+    const key = await crypto.subtle.generateKey(
+      {
+        name: "AES-CBC",
+        length: 256, // Or 128 or 192
+      },
+      true,
+      ["encrypt", "decrypt"]
     );
-
-    const iv = crypto.getRandomValues(new Uint8Array(12)); // Initialization Vector
-
-    const encrypted = await crypto.subtle.encrypt(
-        { name: "AES-GCM", iv: iv },
-        key,
-        encodedText
+  
+    const exportedKey = await crypto.subtle.exportKey("raw", key);
+    const importedKey = await crypto.subtle.importKey(
+      "raw",
+      exportedKey,
+      { name: "AES-CBC" },
+      true,
+      ["encrypt", "decrypt"]
     );
-
-    return {
-        ciphertext: btoa(String.fromCharCode(...new Uint8Array(encrypted))),
-        iv: btoa(String.fromCharCode(...iv))
-    };
-}
+  
+    console.log("Key imported successfully:", importedKey);
+    return importedKey;
+  }
+  
+  generateAndImportKey();
 
 // Example usage
 encryptData("Hello, World!", "your-secret-key-32bytes")
