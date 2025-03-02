@@ -1,8 +1,10 @@
+from BANGWAGON.Scripts.license import DriverInfo
 import cv2
 import easyocr
 import numpy as np
 import re
 import json
+
 
 # Initialize EasyOCR Reader
 reader = easyocr.Reader(['en'], gpu=True)  # Enable GPU if available
@@ -114,5 +116,15 @@ for key, value in license_data.items():
 # Save extracted details to a JSON file
 with open("license_details.json", "w") as json_file:
     json.dump(license_data, json_file, indent=4)
+
+object = DriverInfo(
+    license_data["License Number"],
+    license_data["Name"],
+    license_data["DOB"],
+    license_data["Address"]
+)
+
+object.convert_to_json()
+
 
 print("\n💾 License details saved in 'license_details.json'")
