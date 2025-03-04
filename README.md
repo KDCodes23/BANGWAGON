@@ -9,50 +9,6 @@ This is a voting application that pulls the latest news, captures data from the 
 * **Secure Data Handling:** Encrypts and securely stores user data.
 * **Voting:** Enables users to vote for candidates after successful ID verification.
 
-## Project Structure
-
-
-BANGWAGON/
-├── Assets/
-│   ├── 8c7dc827adf0f59f75be23feafe601f8b5010b9073d4d103c0f5f940f78abd47.jpg  # Image asset
-│   ├── DougFord-scaled.jpeg                                                    # Image asset
-│   ├── DougFord2.jpeg                                                          # Image asset
-│   ├── gpo-mike-schreiner-headshot-2021-bricks-1.jpg                           # Image asset
-│   ├── marit-stiles-ontario-ndp-leader.avif                                     # Image asset
-├── Pages/
-│   ├── Candidates.html                                                         # Candidates page
-│   ├── Confirmation.html                                                       # Confirmation page
-│   ├── HomePage.html                                                           # Homepage
-│   ├── Verification.html                                                       # Verification page
-│   ├── Voting.html                                                             # Voting page
-├── Scripts/
-│   ├── __pycache__/                                                            # Python bytecode cache
-│   ├── .env                                                                    # Environment variables
-│   ├── cadi.js                                                                 # JavaScript logic (likely related to candidates)
-│   ├── connect.py                                                              # Python script for database connection
-│   ├── encrypt.py                                                              # Python script for encryption
-│   ├── gg.py                                                                   # Python script (purpose unclear, needs description)
-│   ├── license_details.json                                                    # JSON file for license details
-│   ├── license.py                                                              # Python script for license handling
-│   ├── news.js                                                                 # JavaScript logic for news display
-│   ├── sendEmail.js                                                            # JavaScript logic for sending emails
-│   ├── server.js                                                               # JavaScript server-side logic
-│   ├── server.py                                                               # Python server-side logic
-│   ├── test.py                                                                 # Python testing script
-├── Styles/
-│   ├── home.css                                                                # Styles for homepage
-│   ├── candi.css                                                               # Styles for candidates page
-│   ├── Veri.css                                                                # Styles for verification page
-│   ├── vote.css                                                                # Styles for voting page
-├── Key&IV.enc                                                                  # Encrypted key and IV for encryption
-├── license_details.json                                                        # JSON file for license details (duplicate, consider removing)
-├── package.json                                                                # Node.js package configuration
-
-
-
-
-
-
 
 ## Setup and Installation
 
