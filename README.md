@@ -12,7 +12,41 @@ This is a voting application that pulls the latest news, captures data from the 
 ## Project Structure
 
 
-
+BANGWAGON/
+├── Assets/
+│   ├── 8c7dc827adf0f59f75be23feafe601f8b5010b9073d4d103c0f5f940f78abd47.jpg
+│   ├── DougFord-scaled.jpeg
+│   ├── DougFord2.jpeg
+│   ├── gpo-mike-schreiner-headshot-2021-bricks-1.jpg
+│   ├── marit-stiles-ontario-ndp-leader.avif
+├── Pages/
+│   ├── Candidates.html
+│   ├── Confirmation.html
+│   ├── HomePage.html
+│   ├── Verification.html
+│   ├── Voting.html
+├── Scripts/
+│   ├── pycache/
+│   ├── .env
+│   ├── cadi.js
+│   ├── connect.py
+│   ├── encrypt.py
+│   ├── gg.py
+│   ├── license_details.json
+│   ├── license.py
+│   ├── news.js
+│   ├── sendEmail.js
+│   ├── server.js
+│   ├── server.py
+│   ├── test.py
+├── Styles/
+│   ├── home.css
+│   ├── candi.css
+│   ├── Veri.css
+│   ├── vote.css
+├── Key&IV.enc
+├── license_details.json
+├── package.json
 
 
 
